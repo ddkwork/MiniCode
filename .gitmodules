@@ -7,3 +7,4 @@
 [submodule "external/MiniCode4j"]
 	path = external/MiniCode4j
 	url = https://github.com/hobbescalvin414-tech/minicode4j.git
+	branch = feat/default-ts-ui
