@@ -8,3 +8,6 @@
 	path = external/MiniCode4j
 	url = https://github.com/hobbescalvin414-tech/minicode4j.git
 	branch = feat/default-ts-ui
+[submodule "external/MiniCode-go"]
+	path = external/MiniCode-go
+	url = https://github.com/ssbsunshengbo/MiniCode.git
