@@ -275,8 +275,11 @@ function renderPromptPanel(state: ScreenState): string {
   return renderPanel('prompt', promptBody, { showTitle: false })
 }
 
-function renderPermissionSummary(args: TtyAppArgs): string {
-  return renderPermissionSummaryLine(args.permissions.getSummary())
+function renderPermissionSummary(args: TtyAppArgs, state: ScreenState): string {
+  return renderPermissionSummaryLine(
+    args.permissions.getSummary(),
+    state.inputHintFrame,
+  )
 }
 
 function setStatus(state: ScreenState, status: string | null): void {
@@ -300,6 +303,7 @@ function renderFooterStatus(state: ScreenState): string {
 function getTranscriptBodyLines(args: TtyAppArgs, state: ScreenState): number {
   const rows = Math.max(24, process.stdout.rows ?? 40)
   const headerLines = renderHeaderPanel(args, state).split('\n').length
+  const permissionSummaryLines = renderPermissionSummary(args, state).split('\n').length
   const promptLines = renderPromptPanel(state).split('\n').length
   const footerLines = 1
   const gapsBetweenSections = 2
@@ -307,6 +311,7 @@ function getTranscriptBodyLines(args: TtyAppArgs, state: ScreenState): number {
   const remaining =
     rows -
     headerLines -
+    permissionSummaryLines -
     promptLines -
     footerLines -
     gapsBetweenSections -
@@ -829,6 +834,7 @@ function renderScreen(args: TtyAppArgs, state: ScreenState): void {
       },
     ),
   )
+  frame.push(renderPermissionSummary(args, state))
   frame.push(renderPromptPanel(state))
   frame.push(
     renderFooterBar(
@@ -839,7 +845,6 @@ function renderScreen(args: TtyAppArgs, state: ScreenState): void {
       backgroundTasks,
       state.compressionStatus,
       state.statusAnimationFrame,
-      renderPermissionSummary(args),
       renderFooterStatus(state),
     ),
   )
@@ -1329,6 +1334,7 @@ async function handleInput(
   const localCommandResult = await tryHandleLocalCommand(input, {
     cwd: args.cwd,
     tools: args.tools,
+    permissionSummary: args.permissions.getSummary(),
   })
   if (localCommandResult !== null) {
     pushTranscriptEntry(state, {

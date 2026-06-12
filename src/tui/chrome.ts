@@ -300,12 +300,25 @@ export function renderBanner(
   return renderPanel('MiniCode', metaLine)
 }
 
-export function renderPermissionSummaryLine(permissionSummary: string[]): string {
+export function renderPermissionSummaryLine(
+  permissionSummary: string[],
+  _frame = 0,
+): string {
   const width = Math.max(60, process.stdout.columns ?? 100)
-  const line =
-    permissionSummary.length > 0
-      ? permissionSummary.map(part => part.replace(/^cwd:\s*/, '')).join(' | ')
-      : 'permissions: ask on sensitive actions'
+  const summarizeList = (label: string, noneText: string): string => {
+    const raw = permissionSummary.find(part => part.startsWith(`${label}: `))
+    const value = raw?.slice(label.length + 2).trim() || 'none'
+    if (value === 'none') return `${label}: ${noneText}`
+
+    const values = value.split(',').map(part => part.trim()).filter(Boolean)
+    const first = values[0] ?? 'none'
+    return values.length > 1 ? `${label}: ${first}, ...` : `${label}: ${first}`
+  }
+  const lines = [
+    summarizeList('extra allowed dirs', 'none'),
+    summarizeList('dangerous allowlist', 'none'),
+  ]
+  const line = lines.join(' | ')
   return `${DIM}${truncatePlain(line, width)}${RESET}`
 }
 
